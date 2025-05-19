@@ -1,0 +1,135 @@
+services:
+
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auth_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+      - ./db-scripts/auth_db.sql:/docker-entrypoint-initdb.d/auth_db.sql
+    networks:
+      - backend
+
+  mysql-clients:
+    image: mysql:8.0
+    container_name: mysql-clients
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: client_db
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_clients_data:/var/lib/mysql
+      - ./db-scripts/clients_db.sql:/docker-entrypoint-initdb.d/clients_db.sql
+    networks:
+      - backend
+
+  mysql-account:
+    image: mysql:8.0
+    container_name: mysql-account
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: account_db
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_account_data:/var/lib/mysql
+      - ./db-scripts/accounts_db.sql:/docker-entrypoint-initdb.d/accounts_db.sql
+    networks:
+      - backend
+
+  mysql-movements:
+    image: mysql:8.0
+    container_name: mysql-movements
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: movements_db
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_movements_data:/var/lib/mysql
+      - ./db-scripts/movements_db.sql:/docker-entrypoint-initdb.d/movements_db.sql
+    networks:
+      - backend
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - clients-service
+      - account-service
+      - movements-service
+      - register-service
+    networks:
+      - backend
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql-auth
+    networks:
+      - backend
+
+  clients-service:
+    build: ./clients-service
+    container_name: clients-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql-clients
+    networks:
+      - backend
+
+  account-service:
+    build: ./account-service
+    container_name: account-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mysql-account
+    networks:
+      - backend
+
+  movements-service:
+    build: ./movements-service
+    container_name: movements-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mysql-movements
+    networks:
+      - backend
+
+  register-service:
+    build: ./register-service
+    container_name: register-service
+    ports:
+      - "8085:8085"
+    networks:
+      - backend
+  sistema-bancario-app:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    networks:
+      - backend
+    
+networks:
+  backend:
+
+volumes:
+  mysql_auth_data:
+  mysql_clients_data:
+  mysql_account_data:
+  mysql_movements_data:

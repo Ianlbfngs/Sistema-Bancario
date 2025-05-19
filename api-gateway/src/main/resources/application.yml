@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: auth-service
+            uri: http://auth-service:8081
+            predicates:
+              - Path=/api/credentials/**
+          - id: clients-service-province
+            uri: http://clients-service:8082
+            predicates:
+              - Path=/api/provinces/**
+          - id: clients-service-nationality
+            uri: http://clients-service:8082
+            predicates:
+              - Path=/api/nationalities/**
+          - id: clients-service-locality
+            uri: http://clients-service:8082
+            predicates:
+              - Path=/api/localities/**
+          - id: clients-service-gender
+            uri: http://clients-service:8082
+            predicates:
+              - Path=/api/genders/**
+          - id: clients-service-client
+            uri: http://clients-service:8082
+            predicates:
+              - Path=/api/clients/**
+          - id: account-service-type
+            uri: http://account-service:8083
+            predicates:
+              - Path=/api/accounts/**
+          - id: movements-service-type
+            uri: http://movements-service:8084
+            predicates:
+              - Path=/api/movements/**
+          - id: register-service
+            uri: http://register-service:8085
+            predicates:
+              - Path=/api/register/**
+
+logging:
+  level:
+    root: info
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: info
+    org.springframework.cloud.gateway: TRACE
